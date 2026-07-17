@@ -15,4 +15,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public class AuthResponse {
   String token;
+  boolean isAdmin;
 }

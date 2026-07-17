@@ -39,25 +39,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       return;
     }
 
-    username = jwtService.getUsernameFromToken(token);
+    try {
 
-    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-      UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+      username = jwtService.getUsernameFromToken(token);
 
-      if (jwtService.isTokenValid(token, userDetails)) {
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-            userDetails,
-            null,
-            userDetails.getAuthorities());
+      if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        if (jwtService.isTokenValid(token, userDetails)) {
+          UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+              userDetails,
+              null,
+              userDetails.getAuthorities());
 
-        SecurityContextHolder.getContext().setAuthentication(authToken);
+          authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+          SecurityContextHolder.getContext().setAuthentication(authToken);
+        }
+
       }
 
+      filterChain.doFilter(request, response);
+    } catch (Exception e) {
+
+      System.out.println("-----------------------");
+      System.out.println("Ocurrio un error");
+      System.out.println("-----------------------");
+      filterChain.doFilter(request, response);
+      return;
     }
 
-    filterChain.doFilter(request, response);
   }
 
   private String getTokenFromRequest(HttpServletRequest request) {

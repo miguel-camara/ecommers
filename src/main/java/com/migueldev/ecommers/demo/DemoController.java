@@ -1,5 +1,6 @@
 package com.migueldev.ecommers.demo;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,8 +14,13 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class DemoController {
 
-  @PostMapping(value = "demo")
+  @GetMapping("/demo")
   public String welcome() {
-    return "Welcome from secure endpoint";
+    try {
+      return "Welcome from secure endpoint";
+
+    } catch (Exception e) {
+      return "Ocurrio un error";
+    }
   }
 }

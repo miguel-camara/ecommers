@@ -40,16 +40,16 @@ public class JwtService {
     return Keys.hmacShaKeyFor(keyBytes);
   }
 
-  public String getUsernameFromToken(String token) {
+  public String getUsernameFromToken(String token) throws Exception {
     return getClaim(token, Claims::getSubject);
   }
 
-  public boolean isTokenValid(String token, UserDetails userDetails) {
+  public boolean isTokenValid(String token, UserDetails userDetails) throws Exception {
     final String username = getUsernameFromToken(token);
     return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
   }
 
-  private Claims getAllClaims(String token) {
+  private Claims getAllClaims(String token) throws Exception {
     return Jwts
         .parserBuilder()
         .setSigningKey(getKey())
@@ -58,16 +58,16 @@ public class JwtService {
         .getBody();
   }
 
-  public <T> T getClaim(String token, Function<Claims, T> claimsResolver) {
+  public <T> T getClaim(String token, Function<Claims, T> claimsResolver) throws Exception {
     final Claims claims = getAllClaims(token);
     return claimsResolver.apply(claims);
   }
 
-  private Date getExpiration(String token) {
+  private Date getExpiration(String token) throws Exception {
     return getClaim(token, Claims::getExpiration);
   }
 
-  private boolean isTokenExpired(String token) {
+  private boolean isTokenExpired(String token) throws Exception {
     return getExpiration(token).before(new Date());
   }
 

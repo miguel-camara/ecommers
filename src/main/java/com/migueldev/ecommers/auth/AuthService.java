@@ -1,5 +1,7 @@
 package com.migueldev.ecommers.auth;
 
+import java.util.Optional;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,10 +29,18 @@ public class AuthService {
   public AuthResponse login(LoginRequest request) {
     authenticationManager
         .authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-    UserDetails user = userRepository.findByUsername(request.getUsername()).orElseThrow();
-    String token = jwtService.getToken(user);
+    Optional<User> user = userRepository.findByUsername(request.getUsername());
+    UserDetails userDetails = user.get();
+    String token = jwtService.getToken(userDetails);
+    if (user.get().getRole() == Role.ADMIN) {
+      user.get().setAdmin(true);
+    } else {
+      user.get().setAdmin(false);
+    }
+
     return AuthResponse.builder()
         .token(token)
+        .isAdmin(user.get().isAdmin())
         .build();
 
   }

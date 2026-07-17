@@ -16,6 +16,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,6 +45,8 @@ public class User implements UserDetails {
   String password;
   @Enumerated(EnumType.STRING)
   Role role;
+  @Transient
+  boolean isAdmin;
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
