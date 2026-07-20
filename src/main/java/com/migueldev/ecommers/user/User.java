@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 // import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
@@ -27,33 +28,59 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
-@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
+@Table(name = "user", uniqueConstraints = { @UniqueConstraint(columnNames = { "username" }) })
 public class User implements UserDetails {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private String id;
 
-  private String email;
-  private String password;
+  @Basic
+  @Column(nullable = false)
+  String username;
+  @Column(nullable = false)
+  String password;
+  @Column(nullable = false)
+  String firstname;
+
+  @Transient
+  boolean isAdmin;
+
+  @Enumerated(EnumType.STRING)
+  Role role;
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private List<UserProduct> userProducts = new ArrayList<>();
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getAuthorities'");
+    return List.of(new SimpleGrantedAuthority((role.name())));
   }
 
   @Override
-  public String getUsername() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getUsername'");
+  public boolean isAccountNonExpired() {
+    return true;
+  }
+
+  @Override
+  public boolean isAccountNonLocked() {
+    return true;
+  }
+
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return true;
   }
 
 }
