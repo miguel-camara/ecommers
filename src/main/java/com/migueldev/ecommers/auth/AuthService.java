@@ -1,5 +1,6 @@
 package com.migueldev.ecommers.auth;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.migueldev.ecommers.jwt.JwtService;
 import com.migueldev.ecommers.user.Role;
 import com.migueldev.ecommers.user.User;
+import com.migueldev.ecommers.user.UserProduct;
 import com.migueldev.ecommers.user.UserRepository;
 
 import lombok.AllArgsConstructor;
@@ -31,6 +33,7 @@ public class AuthService {
         .authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
     Optional<User> user = userRepository.findByUsername(request.getUsername());
     UserDetails userDetails = user.get();
+    List<UserProduct> listProducts = user.get().getUserProducts();
     String token = jwtService.getToken(userDetails);
     if (user.get().getRole() == Role.ADMIN) {
       user.get().setAdmin(true);
@@ -41,6 +44,7 @@ public class AuthService {
     return AuthResponse.builder()
         .token(token)
         .isAdmin(user.get().isAdmin())
+        .listProducts(listProducts)
         .build();
 
   }
@@ -50,9 +54,8 @@ public class AuthService {
         .username(request.getUsername())
         .password(passwordEncoder.encode(request.getPassword()))
         .firstname(request.getFirstname())
-        .lastname(request.lastname)
-        .country(request.getCountry())
         .role(Role.USER)
+        .userProducts(List.of())
         .build();
 
     userRepository.save(user);
